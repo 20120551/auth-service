@@ -14,3 +14,19 @@ export const auth0 = registerAs('auth0', () => ({
     grantType: 'client_credentials',
   },
 }));
+
+export const azure = registerAs('azure', () => ({
+  key: env.AZURE_ENDPOINT,
+  endpoint: env.AZURE_KEY,
+  ocrModel: env.AZURE_OCR_MODEL,
+}));
+
+export const firebase = registerAs('firebase', () => ({
+  apiKey: env.FIREBASE_API_KEY,
+  authDomain: env.FIREBASE_AUTH_DOMAIN,
+  projectId: env.FIREBASE_PROJECT_ID,
+  storageBucket: env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: env.FIREBASE_MESSAGE_SENDER_ID,
+  appId: env.FIREBASE_APP_ID,
+  measurementId: env.FIREBASE_MEMSUREMENT_ID,
+}));

@@ -1,54 +1,48 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
-import {
-  Auth0ModuleAsyncOptions,
-  Auth0ModuleOptions,
-  Auth0Service,
-  IAuth0Service,
-} from '.';
+import { AzureModuleAsyncOptions, AzureModuleOptions } from '.';
+import { AzureOcrService, IAzureOcrService } from './azure.ocr.service';
 
 @Module({
   providers: [
     {
-      provide: IAuth0Service,
-      useClass: Auth0Service,
+      provide: IAzureOcrService,
+      useClass: AzureOcrService,
     },
   ],
-  exports: [IAuth0Service],
+  exports: [IAzureOcrService],
 })
-export class Auth0Module {
-  static forRoot(options: Auth0ModuleOptions): DynamicModule {
+export class AzureModule {
+  static forRoot(options: AzureModuleOptions): DynamicModule {
     return {
-      module: Auth0Module,
+      module: AzureModule,
       providers: [
         {
-          provide: Auth0ModuleOptions,
+          provide: AzureModuleOptions,
           useExisting: options,
         },
       ],
-      exports: [Auth0ModuleOptions],
     };
   }
 
-  static forRootAsync(options: Auth0ModuleAsyncOptions): DynamicModule {
+  static forRootAsync(options: AzureModuleAsyncOptions): DynamicModule {
     return {
       global: options.global || false,
-      module: Auth0Module,
+      module: AzureModule,
       providers: [
         ...this.createAsyncProvider(options),
         ...(options.providers || []),
       ],
       imports: options.imports,
-      exports: [Auth0ModuleOptions],
     };
   }
 
   private static createAsyncProvider(
-    options: Auth0ModuleAsyncOptions,
+    options: AzureModuleAsyncOptions,
   ): Provider[] {
     const result = [];
     if (options.useFactory) {
       result.push({
-        provide: Auth0ModuleOptions,
+        provide: AzureModuleOptions,
         useFactory: options.useFactory,
         inject: options.inject || [],
       });
@@ -56,14 +50,14 @@ export class Auth0Module {
 
     if (options.useClass) {
       result.push({
-        provide: Auth0ModuleOptions,
+        provide: AzureModuleOptions,
         useClass: options.useClass,
       });
     }
 
     if (options.useExisting) {
       result.push({
-        provide: Auth0ModuleOptions,
+        provide: AzureModuleOptions,
         useExisting: options.useExisting,
       });
     }

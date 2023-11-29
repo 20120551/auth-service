@@ -1,4 +1,3 @@
-export * from './clientCredential.dto';
 export * from './verifyEmail.dto';
 export * from './updateUserAvatar.dto';
 export * from './updateUserProfile.dto';

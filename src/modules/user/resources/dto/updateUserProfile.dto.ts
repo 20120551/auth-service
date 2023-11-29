@@ -1,6 +1,4 @@
-import { ClientCredential } from './clientCredential.dto';
-
-export class UpdateUserProfileDto extends ClientCredential {
+export class UpdateUserProfileDto {
   givenName: string;
   familyName: string;
   name: string;

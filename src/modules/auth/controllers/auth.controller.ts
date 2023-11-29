@@ -1,19 +1,9 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Inject,
-  Post,
-  Query,
-  Req,
-} from '@nestjs/common';
-import { Request } from 'express';
+import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
 import { IAuthService } from '../services';
 import {
   ResourceOwnerLoginDto,
   SignupDto,
   SocialLoginDto,
-  SupportedSocialLogin,
 } from '../resources/dto';
 
 @Controller('/api/auth')

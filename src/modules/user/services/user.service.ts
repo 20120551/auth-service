@@ -12,6 +12,8 @@ import {
   createSnakeCaseFromObject,
 } from 'utils/request';
 import { UserResponse } from '../resources/response';
+import { AzureOcrStudentCardResponse, IAzureOcrService } from 'utils/ocr/azure';
+import { IFirebaseStorageService } from 'utils/firebase';
 
 export const IUserService = 'IUserService';
 export interface IUserService {
@@ -37,8 +39,14 @@ export interface IUserService {
 export class UserService implements IUserService {
   private readonly _auth0Client: AxiosInstance;
   constructor(
-    @Inject(IAuth0Service) private readonly _auth0Service: IAuth0Service,
-    @Inject(Auth0ModuleOptions) auth0Options: Auth0ModuleOptions,
+    @Inject(IAuth0Service)
+    private readonly _auth0Service: IAuth0Service,
+    @Inject(IAzureOcrService)
+    private readonly _azureOcrService: IAzureOcrService,
+    @Inject(IFirebaseStorageService)
+    private readonly _firebaseStorageService: IFirebaseStorageService,
+    @Inject(Auth0ModuleOptions)
+    auth0Options: Auth0ModuleOptions,
   ) {
     this._auth0Client = axios.create({
       baseURL: auth0Options.api.baseUrl,
@@ -75,10 +83,15 @@ export class UserService implements IUserService {
     user: UserResponse,
     updateUserAvatar: UpdateUserAvatarDto,
   ): Promise<UserResponse> {
+    const { buffer, filename } = updateUserAvatar;
+    const cardBucket = `avatar/${filename}`;
+    await this._firebaseStorageService.upload(buffer, cardBucket);
+    const url = await this._firebaseStorageService.get(cardBucket);
+
     const token = await this._getToken();
 
     const _user = await this._updateUser(token, {
-      ...updateUserAvatar,
+      picture: url,
       userId: user.userId,
     });
 
@@ -89,10 +102,21 @@ export class UserService implements IUserService {
     user: UserResponse,
     updateUserStudentCard: UpdateUserStudentCardDto,
   ): Promise<UserResponse> {
-    const token = await this._getToken();
+    const { buffer, filename } = updateUserStudentCard;
+    const { name, ...payload } =
+      await this._azureOcrService.poll<AzureOcrStudentCardResponse>(buffer);
 
+    const cardBucket = `cards/${filename}`;
+    await this._firebaseStorageService.upload(buffer, cardBucket);
+    const url = await this._firebaseStorageService.get(cardBucket);
+
+    const token = await this._getToken();
     const _user = await this._updateUser(token, {
-      ...updateUserStudentCard,
+      name,
+      user_metadata: {
+        ...payload,
+        student_card_image_url: url,
+      },
       userId: user.userId,
     });
 

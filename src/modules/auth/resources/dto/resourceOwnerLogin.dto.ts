@@ -5,17 +5,14 @@ export class ResourceOwnerLoginDto {
   @defaultValue('AUTH0_CLIENT_ID', { fromEnv: true })
   clientId?: string;
 
-  @IsEmail()
-  email?: string;
-
   @defaultValue('AUTH0_CLIENT_SECRET', { fromEnv: true })
   clientSecret?: string;
 
   @defaultValue('openid profile email offline_access')
   scope?: string;
 
-  @IsString()
-  username: string;
+  @IsEmail()
+  email: string;
 
   @IsString()
   @MinLength(0, {

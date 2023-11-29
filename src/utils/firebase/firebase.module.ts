@@ -1,12 +1,9 @@
 import { DynamicModule, Module, Provider } from '@nestjs/common';
-import { initializeApp } from 'firebase/app';
+import { FirebaseModuleOptions, FirebaseModuleAsyncOptions } from '.';
 import {
-  FirebaseInstance,
-  FirebaseModuleAsyncOptions,
-  FirebaseModuleOptions,
+  FirebaseStorageService,
   IFirebaseStorageService,
-} from '.';
-import { FirebaseStorageService } from './firebase.storage.service';
+} from './firebase.storage.service';
 
 @Module({
   providers: [
@@ -19,13 +16,12 @@ import { FirebaseStorageService } from './firebase.storage.service';
 })
 export class FirebaseModule {
   static forRoot(options: FirebaseModuleOptions): DynamicModule {
-    const app = initializeApp(options);
     return {
       module: FirebaseModule,
       providers: [
         {
-          provide: FirebaseInstance,
-          useExisting: app,
+          provide: FirebaseModuleOptions,
+          useExisting: options,
         },
       ],
     };
@@ -49,7 +45,7 @@ export class FirebaseModule {
     const result = [];
     if (options.useFactory) {
       result.push({
-        provide: FirebaseInstance,
+        provide: FirebaseModuleOptions,
         useFactory: options.useFactory,
         inject: options.inject || [],
       });
@@ -57,14 +53,14 @@ export class FirebaseModule {
 
     if (options.useClass) {
       result.push({
-        provide: FirebaseInstance,
+        provide: FirebaseModuleOptions,
         useClass: options.useClass,
       });
     }
 
     if (options.useExisting) {
       result.push({
-        provide: FirebaseInstance,
+        provide: FirebaseModuleOptions,
         useExisting: options.useExisting,
       });
     }

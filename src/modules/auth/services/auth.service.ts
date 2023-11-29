@@ -27,8 +27,8 @@ export class AuthService implements IAuthService {
   private readonly _auth0Client: AxiosInstance;
   private readonly _options: Auth0ModuleOptions;
   constructor(
-    @Inject(IAuth0Service) private readonly _auth0Service: IAuth0Service,
-    @Inject(Auth0ModuleOptions) auth0Options: Auth0ModuleOptions,
+    @Inject(Auth0ModuleOptions)
+    auth0Options: Auth0ModuleOptions,
   ) {
     this._options = auth0Options;
     this._auth0Client = axios.create({
@@ -48,7 +48,10 @@ export class AuthService implements IAuthService {
   ): Promise<PairTokenResponse> {
     const res = await this._auth0Client.post(
       '/oauth/token',
-      createSnakeCaseFromObject(resourceOwnerLoginDto),
+      createSnakeCaseFromObject({
+        username: resourceOwnerLoginDto.email,
+        password: resourceOwnerLoginDto.password,
+      }),
     );
     return createCamelCaseFromObject<Auth0PairToken, PairTokenResponse>(
       res.data,

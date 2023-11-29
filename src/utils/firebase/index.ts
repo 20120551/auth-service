@@ -3,9 +3,8 @@ import { initializeApp } from 'firebase/app';
 
 export const FirebaseInstance = 'FirebaseInstance';
 export type FirebaseInstance = ReturnType<typeof initializeApp>;
-export const IFirebaseStorageService = 'IFirebaseStorageService';
-
 export const FirebaseModuleOptions = 'FirebaseModuleOptions';
+
 export interface FirebaseModuleOptions {
   apiKey: string;
   authDomain: string;
@@ -32,12 +31,6 @@ export interface FirebaseModuleAsyncOptions
   useExisting?: Type<FirebaseOptionsFactory>;
   useClass?: Type<FirebaseOptionsFactory>;
   providers?: Provider[];
-}
-
-export interface IFirebaseStorageService {
-  upload(file: ArrayBuffer | Uint8Array, path: string): Promise<void>;
-  get(path: string): Promise<string | undefined>;
-  del(path: string): Promise<boolean>;
 }
 
 export * from './firebase.module';
