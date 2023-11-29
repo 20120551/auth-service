@@ -3,13 +3,13 @@ import { defaultValue } from 'utils/decorator/parameters';
 
 export class ResourceOwnerLoginDto {
   @defaultValue('AUTH0_CLIENT_ID', { fromEnv: true })
-  client_id?: string;
+  clientId?: string;
 
   @IsEmail()
   email?: string;
 
   @defaultValue('AUTH0_CLIENT_SECRET', { fromEnv: true })
-  client_secret?: string;
+  clientSecret?: string;
 
   @defaultValue('openid profile email offline_access')
   scope?: string;

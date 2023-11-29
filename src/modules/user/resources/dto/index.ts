@@ -1,2 +1,5 @@
-export * from './auth0ClientCredential.dto';
+export * from './clientCredential.dto';
 export * from './verifyEmail.dto';
+export * from './updateUserAvatar.dto';
+export * from './updateUserProfile.dto';
+export * from './updateUserStudentCard.dto';

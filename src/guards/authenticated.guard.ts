@@ -4,8 +4,11 @@ import {
   ExecutionContext,
   Inject,
 } from '@nestjs/common';
-import { IAuth0Service } from 'utils/auth0';
+import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
 import { UnauthorizedException } from 'errors/domain.error';
+import { createCamelCaseFromObject } from 'utils/request';
+import { UserResponse } from 'modules/user/resources/response';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthenticatedGuard implements CanActivate {
@@ -14,7 +17,7 @@ export class AuthenticatedGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest() as Request;
     const token = request.headers.authorization;
     if (!token) {
       throw new UnauthorizedException('Token not appear in request header');
@@ -29,7 +32,9 @@ export class AuthenticatedGuard implements CanActivate {
       access_token: accessToken,
     });
 
-    request.user = userInfo;
+    request.user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+      userInfo,
+    );
     return true;
   }
 }

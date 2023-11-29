@@ -14,7 +14,7 @@ import {
   SignupDto,
   SocialLoginDto,
   SupportedSocialLogin,
-} from '../resources/dto/auth';
+} from '../resources/dto';
 
 @Controller('/api/auth')
 export class AuthController {

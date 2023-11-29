@@ -4,10 +4,13 @@ import {
   ExecutionContext,
   Inject,
 } from '@nestjs/common';
-import { IAuth0Service } from 'utils/auth0';
+import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
 import { UnauthorizedException } from 'errors/domain.error';
 import { ROLES_KEY } from 'utils/decorator/classes';
 import { Reflector } from '@nestjs/core';
+import { createCamelCaseFromObject } from 'utils/request';
+import { UserResponse } from 'modules/user/resources/response';
+import { Request } from 'express';
 
 @Injectable()
 export class AuthorizedGuard implements CanActivate {
@@ -17,7 +20,7 @@ export class AuthorizedGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
-    const request = context.switchToHttp().getRequest();
+    const request = context.switchToHttp().getRequest() as Request;
     if (!request.user) {
       const token = request.headers.authorization;
       if (!token) {
@@ -33,7 +36,9 @@ export class AuthorizedGuard implements CanActivate {
         access_token: accessToken,
       });
 
-      request.user = userInfo;
+      request.user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+        userInfo,
+      );
     }
 
     const requiredRoles = this.reflector.getAllAndOverride<any[]>(ROLES_KEY, [
@@ -46,6 +51,6 @@ export class AuthorizedGuard implements CanActivate {
     }
 
     const { user } = request;
-    return requiredRoles.some((role) => user.roles?.includes(role));
+    return requiredRoles.some((role) => user.appMetadata[role] !== undefined);
   }
 }

@@ -28,3 +28,17 @@ export const createCamelCaseFromObject = <T extends object, R extends object>(
 
   return convertedObject as R;
 };
+
+export const createSnakeCaseFromObject = <T extends object, R extends object>(
+  obj: T,
+) => {
+  const convertedObject = {};
+  for (const key in obj) {
+    if (obj.hasOwnProperty(key)) {
+      const snakecase = key.replace(/([A-Z])/g, '_$1').toLowerCase();
+      convertedObject[snakecase] = obj[key];
+    }
+  }
+
+  return convertedObject as R;
+};
