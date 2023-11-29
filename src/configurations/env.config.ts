@@ -8,16 +8,16 @@ export const auth0 = registerAs('auth0', () => ({
     baseUrl: env.AUTH0_BASE_URL,
   },
   manager: {
-    clientId: env.AUTH0_CLIENT_ID,
-    clientSecret: env.AUTH0_CLIENT_SECRET,
-    audience: env.AUTH0_BASE_URL,
+    clientId: env.AUTH0_MANAGER_CLIENT_ID,
+    clientSecret: env.AUTH0_MANAGER_CLIENT_SECRET,
+    audience: `${env.AUTH0_BASE_URL}/api/v2/`,
     grantType: 'client_credentials',
   },
 }));
 
 export const azure = registerAs('azure', () => ({
-  key: env.AZURE_ENDPOINT,
-  endpoint: env.AZURE_KEY,
+  key: env.AZURE_KEY,
+  endpoint: env.AZURE_ENDPOINT,
   ocrModel: env.AZURE_OCR_MODEL,
 }));
 

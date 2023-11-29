@@ -36,9 +36,13 @@ export class AuthorizedGuard implements CanActivate {
         access_token: accessToken,
       });
 
-      request.user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+      const camelCase = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
         userInfo,
       );
+      request.user = {
+        ...camelCase,
+        userId: camelCase['sub'],
+      };
     }
 
     const requiredRoles = this.reflector.getAllAndOverride<any[]>(ROLES_KEY, [

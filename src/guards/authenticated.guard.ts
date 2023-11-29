@@ -32,9 +32,13 @@ export class AuthenticatedGuard implements CanActivate {
       access_token: accessToken,
     });
 
-    request.user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+    const camelCase = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
       userInfo,
     );
+    request.user = {
+      ...camelCase,
+      userId: camelCase['sub'],
+    };
     return true;
   }
 }

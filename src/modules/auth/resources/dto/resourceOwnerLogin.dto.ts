@@ -8,6 +8,9 @@ export class ResourceOwnerLoginDto {
   @defaultValue('AUTH0_CLIENT_SECRET', { fromEnv: true })
   clientSecret?: string;
 
+  @defaultValue('password')
+  grantType: string;
+
   @defaultValue('openid profile email offline_access')
   scope?: string;
 

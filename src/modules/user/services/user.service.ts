@@ -17,6 +17,8 @@ import { IFirebaseStorageService } from 'utils/firebase';
 
 export const IUserService = 'IUserService';
 export interface IUserService {
+  //TODO:  refresh token
+  getUserProfile(user: UserResponse): Promise<UserResponse>;
   sendVerificationEmail(
     user: UserResponse,
     verifyEmailDto: VerifyEmailDto,
@@ -46,21 +48,36 @@ export class UserService implements IUserService {
     @Inject(IFirebaseStorageService)
     private readonly _firebaseStorageService: IFirebaseStorageService,
     @Inject(Auth0ModuleOptions)
-    auth0Options: Auth0ModuleOptions,
+    private readonly _auth0Options: Auth0ModuleOptions,
   ) {
     this._auth0Client = axios.create({
-      baseURL: auth0Options.api.baseUrl,
+      baseURL: _auth0Options.api.baseUrl,
     });
+  }
+
+  async getUserProfile(user: UserResponse): Promise<UserResponse> {
+    const token = await this._getToken();
+    const res = await this._auth0Client.get(`/api/v2/users/${user.userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return createCamelCaseFromObject<Auth0UserInfo, UserResponse>(res.data);
   }
   async sendVerificationEmail(
     user: UserResponse,
     _: VerifyEmailDto,
   ): Promise<void> {
     const token = await this._getToken();
-    const { identities, ...payload } = user;
+    const [provider, userId] = user.userId.split('|');
     const verifyEmailPayload = {
-      ...createSnakeCaseFromObject(payload),
-      identities: createSnakeCaseFromObject(identities),
+      userId: user.userId,
+      clientId: this._auth0Options.manager.clientId,
+      identity: {
+        userId,
+        provider,
+      },
     };
     await this._sendVerificationEmail(token, verifyEmailPayload);
   }
@@ -147,9 +164,10 @@ export class UserService implements IUserService {
     token: string,
     updateUser: T,
   ): Promise<UserResponse> {
-    const res = await this._auth0Client.post(
-      `/api/v2/users/${updateUser.userId}`,
-      createSnakeCaseFromObject(updateUser),
+    const { userId, ...payload } = updateUser;
+    const res = await this._auth0Client.patch(
+      `/api/v2/users/${userId}`,
+      createSnakeCaseFromObject(payload),
       {
         headers: {
           Authorization: `Bearer ${token}`,

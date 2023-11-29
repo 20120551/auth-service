@@ -1,4 +1,13 @@
-import { Body, Controller, Get, Inject, Post, Query } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Inject,
+  Post,
+  Query,
+} from '@nestjs/common';
 import { IAuthService } from '../services';
 import {
   ResourceOwnerLoginDto,
@@ -17,11 +26,13 @@ export class AuthController {
     return this._authService.createSocialLoginUrl(socialLoginDto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('signup')
   signup(@Body() signupDto: SignupDto) {
     return this._authService.signup(signupDto);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   login(@Body() resourceOwnerLoginDto: ResourceOwnerLoginDto) {
     return this._authService.login(resourceOwnerLoginDto);

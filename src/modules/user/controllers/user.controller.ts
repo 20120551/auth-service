@@ -2,6 +2,8 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   MaxFileSizeValidator,
   ParseFilePipe,
@@ -24,11 +26,14 @@ export class UserController {
     @Inject(IUserService) private readonly _userService: IUserService,
   ) {}
 
+  @HttpCode(HttpStatus.OK)
   @Get()
   async profile(@User() user: UserResponse) {
-    return user;
+    const userResponse = await this._userService.getUserProfile(user);
+    return userResponse;
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post()
   async updateProfile(
     @Body() updateUserProfileDto: UpdateUserProfileDto,
@@ -41,6 +46,7 @@ export class UserController {
     return userResponse;
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('/verify-email')
   async verifyEmail(
     @Body() verifyEmailDto: VerifyEmailDto,
@@ -49,20 +55,15 @@ export class UserController {
     await this._userService.sendVerificationEmail(user, verifyEmailDto);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('/avatar')
   @UseInterceptors(FileInterceptor('file'))
   async uploadAvatar(
-    @UploadedFile(
-      new ParseFilePipe({
-        // max 10mb
-        validators: [new MaxFileSizeValidator({ maxSize: 1000 * 1000 * 10 })],
-      }),
-    )
-    file: Express.Multer.File,
+    @UploadedFile() file: Express.Multer.File,
     @User() user: UserResponse,
   ) {
     const payload = {
-      filename: file.filename,
+      filename: file.originalname,
       buffer: file.buffer,
       mimeType: file.mimetype,
     };
@@ -75,6 +76,7 @@ export class UserController {
     return userResponse;
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('/student-card')
   @UseInterceptors(FileInterceptor('file'))
   async uploadStudentCard(
@@ -88,7 +90,7 @@ export class UserController {
     @User() user: UserResponse,
   ) {
     const payload = {
-      filename: file.filename,
+      filename: file.originalname,
       buffer: file.buffer,
       mimeType: file.mimetype,
     };

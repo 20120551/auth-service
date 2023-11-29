@@ -29,7 +29,7 @@ export class FirebaseStorageService implements IFirebaseStorageService {
     this._storage = getStorage(app);
   }
   async upload(file: ArrayBuffer | Uint8Array, path: string): Promise<void> {
-    if (isFile(path)) {
+    if (!isFile(path)) {
       throw new Error(`The '${path}' must be the path to file`);
     }
     const uploadRef = ref(this._storage, path);
@@ -37,7 +37,7 @@ export class FirebaseStorageService implements IFirebaseStorageService {
   }
   async get(path: string): Promise<string | undefined> {
     try {
-      if (isFile(path)) {
+      if (!isFile(path)) {
         throw new Error(`The '${path}' must be the path to file`);
       }
       const uploadRef = ref(this._storage, path);

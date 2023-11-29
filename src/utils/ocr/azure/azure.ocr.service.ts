@@ -28,11 +28,15 @@ export class AzureOcrService implements IAzureOcrService {
       this._options.ocrModel,
       buffer,
     );
-    const { keyValuePairs } = await poller.pollUntilDone();
-    console.log(keyValuePairs);
+    const data = await poller.pollUntilDone();
+    const { documents } = data;
+    const extractedFields = documents[0].fields;
+
     const result = {};
-    for (const { key, value } of keyValuePairs) {
-      result[key.content] = value.content;
+    for (const key in extractedFields) {
+      if (extractedFields.hasOwnProperty(key)) {
+        result[key] = extractedFields[key].content;
+      }
     }
     return result as T;
   }

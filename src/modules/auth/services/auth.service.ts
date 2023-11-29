@@ -46,11 +46,12 @@ export class AuthService implements IAuthService {
   async login(
     resourceOwnerLoginDto: ResourceOwnerLoginDto,
   ): Promise<PairTokenResponse> {
+    const { email, ...payload } = resourceOwnerLoginDto;
     const res = await this._auth0Client.post(
       '/oauth/token',
       createSnakeCaseFromObject({
-        username: resourceOwnerLoginDto.email,
-        password: resourceOwnerLoginDto.password,
+        username: email,
+        ...payload,
       }),
     );
     return createCamelCaseFromObject<Auth0PairToken, PairTokenResponse>(
@@ -61,7 +62,7 @@ export class AuthService implements IAuthService {
   createSocialLoginUrl(socialLoginDto: SocialLoginDto): Promise<string> {
     const url = createQueryUrl(
       `${this._options.api.baseUrl}/authorize`,
-      socialLoginDto,
+      createSnakeCaseFromObject(socialLoginDto),
     );
 
     return Promise.resolve(url);
