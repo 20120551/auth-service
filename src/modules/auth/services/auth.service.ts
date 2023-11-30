@@ -7,11 +7,13 @@ import {
   createSnakeCaseFromObject,
 } from 'utils/request';
 import {
+  RefreshTokenDto,
   ResourceOwnerLoginDto,
   SignupDto,
   SocialLoginDto,
 } from '../resources/dto';
 import { PairTokenResponse } from '../resources/response';
+import { ChangePasswordDto } from '../resources/dto/changePassword.dto';
 
 export const IAuthService = 'IAuthService';
 export interface IAuthService {
@@ -20,6 +22,8 @@ export interface IAuthService {
     resourceOwnerLoginDto: ResourceOwnerLoginDto,
   ): Promise<PairTokenResponse>;
   createSocialLoginUrl(socialLoginDto: SocialLoginDto): Promise<string>;
+  changePassword(changePasswordDto: ChangePasswordDto): Promise<void>;
+  refreshToken(refreshTokenDto: RefreshTokenDto): Promise<PairTokenResponse>;
 }
 
 @Injectable()
@@ -34,6 +38,26 @@ export class AuthService implements IAuthService {
     this._auth0Client = axios.create({
       baseURL: auth0Options.api.baseUrl,
     });
+  }
+
+  async changePassword(changePasswordDto: ChangePasswordDto): Promise<void> {
+    await this._auth0Client.post(
+      '/dbconnections/change_password',
+      createSnakeCaseFromObject(changePasswordDto),
+    );
+  }
+
+  async refreshToken(
+    refreshTokenDto: RefreshTokenDto,
+  ): Promise<PairTokenResponse> {
+    const res = await this._auth0Client.post(
+      '/oauth/token',
+      createSnakeCaseFromObject(refreshTokenDto),
+    );
+
+    return createCamelCaseFromObject<Auth0PairToken, PairTokenResponse>(
+      res.data,
+    );
   }
 
   async signup(signupDto: SignupDto): Promise<void> {

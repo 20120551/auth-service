@@ -23,8 +23,8 @@
       "modules/*": ["./src/modules/*"],
       "utils": ["./src/utils"],
       "utils/*": ["./src/utils/*"],
-      "errors": ["./src/errors"],
-      "errors/*": ["./src/errors/*"],
+      "middleware": ["./src/middleware"],
+      "middleware/*": ["./src/middleware/*"],
     }
   }
 }

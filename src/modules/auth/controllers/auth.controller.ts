@@ -10,6 +10,8 @@ import {
 } from '@nestjs/common';
 import { IAuthService } from '../services';
 import {
+  ChangePasswordDto,
+  RefreshTokenDto,
   ResourceOwnerLoginDto,
   SignupDto,
   SocialLoginDto,
@@ -36,5 +38,17 @@ export class AuthController {
   @Post('login')
   login(@Body() resourceOwnerLoginDto: ResourceOwnerLoginDto) {
     return this._authService.login(resourceOwnerLoginDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh-token')
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this._authService.refreshToken(refreshTokenDto);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('change-password')
+  changePassword(@Body() changePassword: ChangePasswordDto) {
+    return this._authService.changePassword(changePassword);
   }
 }

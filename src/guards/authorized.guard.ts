@@ -5,7 +5,10 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
-import { ForbiddenException, UnauthorizedException } from 'errors/domain.error';
+import {
+  ForbiddenException,
+  UnauthorizedException,
+} from 'utils/errors/domain.error';
 import { ROLES_KEY } from 'utils/decorator/classes';
 import { Reflector } from '@nestjs/core';
 import { createCamelCaseFromObject } from 'utils/request';

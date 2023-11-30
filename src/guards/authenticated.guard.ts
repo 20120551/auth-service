@@ -5,7 +5,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
-import { UnauthorizedException } from 'errors/domain.error';
+import { UnauthorizedException } from 'utils/errors/domain.error';
 import { createCamelCaseFromObject } from 'utils/request';
 import { UserResponse } from 'modules/user/resources/response';
 import { Request } from 'express';

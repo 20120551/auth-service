@@ -14,10 +14,10 @@ import {
 import { UserResponse } from '../resources/response';
 import { AzureOcrStudentCardResponse, IAzureOcrService } from 'utils/ocr/azure';
 import { IFirebaseStorageService } from 'utils/firebase';
+import { ChangePasswordDto } from '../resources/dto/changePassword.dto';
 
 export const IUserService = 'IUserService';
 export interface IUserService {
-  //TODO:  refresh token
   getUserProfile(user: UserResponse): Promise<UserResponse>;
   sendVerificationEmail(
     user: UserResponse,
@@ -35,6 +35,10 @@ export interface IUserService {
     user: UserResponse,
     updateUserStudentCard: UpdateUserStudentCardDto,
   ): Promise<UserResponse>;
+  changePassword(
+    user: UserResponse,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void>;
 }
 
 @Injectable()
@@ -52,6 +56,17 @@ export class UserService implements IUserService {
   ) {
     this._auth0Client = axios.create({
       baseURL: _auth0Options.api.baseUrl,
+    });
+  }
+
+  async changePassword(
+    user: UserResponse,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const token = await this._getToken();
+    await this._updateUser(token, {
+      ...changePasswordDto,
+      userId: user.userId,
     });
   }
 

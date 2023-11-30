@@ -17,7 +17,11 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { User } from 'utils/decorator/parameters';
 import { UserResponse } from '../resources/response';
 import { AuthenticatedGuard } from 'guards';
-import { UpdateUserProfileDto, VerifyEmailDto } from '../resources/dto';
+import {
+  ChangePasswordDto,
+  UpdateUserProfileDto,
+  VerifyEmailDto,
+} from '../resources/dto';
 
 @UseGuards(AuthenticatedGuard)
 @Controller('/api/user')
@@ -53,6 +57,15 @@ export class UserController {
     @User() user: UserResponse,
   ) {
     await this._userService.sendVerificationEmail(user, verifyEmailDto);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('/change-password')
+  async changePassword(
+    @Body() changePasswordDto: ChangePasswordDto,
+    @User() user: UserResponse,
+  ) {
+    await this._userService.changePassword(user, changePasswordDto);
   }
 
   @HttpCode(HttpStatus.OK)
