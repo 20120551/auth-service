@@ -16,29 +16,38 @@ export const createQueryUrl = <T extends object>(baseUrl: string, query: T) => {
 export const createCamelCaseFromObject = <T extends object, R extends object>(
   obj: T,
 ) => {
-  const convertedObject = {};
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const camelCaseKey = key.replace(/_./g, (match) =>
-        match.charAt(1).toUpperCase(),
-      );
-      convertedObject[camelCaseKey] = obj[key];
+  if (obj && typeof obj === 'object') {
+    if (Array.isArray(obj)) {
+      return obj.map(createCamelCaseFromObject);
+    } else {
+      return Object.keys(obj).reduce((camelObj, key) => {
+        const camelKey = key.replace(/(_\w)/g, (match) =>
+          match[1].toUpperCase(),
+        );
+        camelObj[camelKey] = createCamelCaseFromObject(obj[key]);
+        return camelObj;
+      }, {}) as R;
     }
   }
-
-  return convertedObject as R;
+  return obj;
 };
 
 export const createSnakeCaseFromObject = <T extends object, R extends object>(
   obj: T,
 ) => {
-  const convertedObject = {};
-  for (const key in obj) {
-    if (obj.hasOwnProperty(key)) {
-      const snakecase = key.replace(/([A-Z])/g, '_$1').toLowerCase();
-      convertedObject[snakecase] = obj[key];
+  if (obj && typeof obj === 'object') {
+    if (Array.isArray(obj)) {
+      return obj.map(createSnakeCaseFromObject);
+    } else {
+      return Object.keys(obj).reduce((snakeObj, key) => {
+        const snakeKey = key.replace(
+          /[A-Z]/g,
+          (match) => `_${match.toLowerCase()}`,
+        );
+        snakeObj[snakeKey] = createSnakeCaseFromObject(obj[key]);
+        return snakeObj;
+      }, {}) as R;
     }
   }
-
-  return convertedObject as R;
+  return obj;
 };

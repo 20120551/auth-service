@@ -5,7 +5,10 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
-import { UnauthorizedException } from 'errors/domain.error';
+import {
+  ForbiddenException,
+  UnauthorizedException,
+} from 'utils/errors/domain.error';
 import { ROLES_KEY } from 'utils/decorator/classes';
 import { Reflector } from '@nestjs/core';
 import { createCamelCaseFromObject } from 'utils/request';
@@ -36,9 +39,13 @@ export class AuthorizedGuard implements CanActivate {
         access_token: accessToken,
       });
 
-      request.user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+      const camelCase = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
         userInfo,
       );
+      request.user = {
+        ...camelCase,
+        userId: camelCase['sub'],
+      };
     }
 
     const requiredRoles = this.reflector.getAllAndOverride<any[]>(ROLES_KEY, [
@@ -51,6 +58,16 @@ export class AuthorizedGuard implements CanActivate {
     }
 
     const { user } = request;
-    return requiredRoles.some((role) => user.appMetadata[role] !== undefined);
+    const isAcceptedRole = requiredRoles.some(
+      (role) => user.appMetadata[role] !== undefined,
+    );
+
+    if (!isAcceptedRole) {
+      throw new ForbiddenException(
+        'Do not have permission to access the resource',
+      );
+    }
+
+    return true;
   }
 }

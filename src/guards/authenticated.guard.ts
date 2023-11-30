@@ -5,7 +5,7 @@ import {
   Inject,
 } from '@nestjs/common';
 import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
-import { UnauthorizedException } from 'errors/domain.error';
+import { UnauthorizedException } from 'utils/errors/domain.error';
 import { createCamelCaseFromObject } from 'utils/request';
 import { UserResponse } from 'modules/user/resources/response';
 import { Request } from 'express';
@@ -32,9 +32,13 @@ export class AuthenticatedGuard implements CanActivate {
       access_token: accessToken,
     });
 
-    request.user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+    const camelCase = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
       userInfo,
     );
+    request.user = {
+      ...camelCase,
+      userId: camelCase['sub'],
+    };
     return true;
   }
 }

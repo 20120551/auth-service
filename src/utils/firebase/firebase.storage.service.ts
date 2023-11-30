@@ -1,22 +1,35 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import {
+  FirebaseStorage,
   deleteObject,
   getDownloadURL,
   getStorage,
   ref,
   uploadBytes,
 } from 'firebase/storage';
-import { FirebaseInstance, IFirebaseStorageService } from '.';
+import { FirebaseModuleOptions } from '.';
 import { isFile } from 'utils/file';
+import { initializeApp } from 'firebase/app';
+
+export const IFirebaseStorageService = 'IFirebaseStorageService';
+export interface IFirebaseStorageService {
+  upload(file: ArrayBuffer | Uint8Array, path: string): Promise<void>;
+  get(path: string): Promise<string | undefined>;
+  del(path: string): Promise<boolean>;
+}
 
 @Injectable()
 export class FirebaseStorageService implements IFirebaseStorageService {
-  private readonly _storage: any;
-  constructor(app: FirebaseInstance) {
+  private readonly _storage: FirebaseStorage;
+  constructor(
+    @Inject(FirebaseModuleOptions)
+    options: FirebaseModuleOptions,
+  ) {
+    const app = initializeApp(options);
     this._storage = getStorage(app);
   }
   async upload(file: ArrayBuffer | Uint8Array, path: string): Promise<void> {
-    if (isFile(path)) {
+    if (!isFile(path)) {
       throw new Error(`The '${path}' must be the path to file`);
     }
     const uploadRef = ref(this._storage, path);
@@ -24,7 +37,7 @@ export class FirebaseStorageService implements IFirebaseStorageService {
   }
   async get(path: string): Promise<string | undefined> {
     try {
-      if (isFile(path)) {
+      if (!isFile(path)) {
         throw new Error(`The '${path}' must be the path to file`);
       }
       const uploadRef = ref(this._storage, path);

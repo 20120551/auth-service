@@ -12,9 +12,13 @@ import {
   createSnakeCaseFromObject,
 } from 'utils/request';
 import { UserResponse } from '../resources/response';
+import { AzureOcrStudentCardResponse, IAzureOcrService } from 'utils/ocr/azure';
+import { IFirebaseStorageService } from 'utils/firebase';
+import { ChangePasswordDto } from '../resources/dto/changePassword.dto';
 
 export const IUserService = 'IUserService';
 export interface IUserService {
+  getUserProfile(user: UserResponse): Promise<UserResponse>;
   sendVerificationEmail(
     user: UserResponse,
     verifyEmailDto: VerifyEmailDto,
@@ -31,28 +35,64 @@ export interface IUserService {
     user: UserResponse,
     updateUserStudentCard: UpdateUserStudentCardDto,
   ): Promise<UserResponse>;
+  changePassword(
+    user: UserResponse,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void>;
 }
 
 @Injectable()
 export class UserService implements IUserService {
   private readonly _auth0Client: AxiosInstance;
   constructor(
-    @Inject(IAuth0Service) private readonly _auth0Service: IAuth0Service,
-    @Inject(Auth0ModuleOptions) auth0Options: Auth0ModuleOptions,
+    @Inject(IAuth0Service)
+    private readonly _auth0Service: IAuth0Service,
+    @Inject(IAzureOcrService)
+    private readonly _azureOcrService: IAzureOcrService,
+    @Inject(IFirebaseStorageService)
+    private readonly _firebaseStorageService: IFirebaseStorageService,
+    @Inject(Auth0ModuleOptions)
+    private readonly _auth0Options: Auth0ModuleOptions,
   ) {
     this._auth0Client = axios.create({
-      baseURL: auth0Options.api.baseUrl,
+      baseURL: _auth0Options.api.baseUrl,
     });
+  }
+
+  async changePassword(
+    user: UserResponse,
+    changePasswordDto: ChangePasswordDto,
+  ): Promise<void> {
+    const token = await this._getToken();
+    await this._updateUser(token, {
+      ...changePasswordDto,
+      userId: user.userId,
+    });
+  }
+
+  async getUserProfile(user: UserResponse): Promise<UserResponse> {
+    const token = await this._getToken();
+    const res = await this._auth0Client.get(`/api/v2/users/${user.userId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return createCamelCaseFromObject<Auth0UserInfo, UserResponse>(res.data);
   }
   async sendVerificationEmail(
     user: UserResponse,
     _: VerifyEmailDto,
   ): Promise<void> {
     const token = await this._getToken();
-    const { identities, ...payload } = user;
+    const [provider, userId] = user.userId.split('|');
     const verifyEmailPayload = {
-      ...createSnakeCaseFromObject(payload),
-      identities: createSnakeCaseFromObject(identities),
+      userId: user.userId,
+      clientId: this._auth0Options.manager.clientId,
+      identity: {
+        userId,
+        provider,
+      },
     };
     await this._sendVerificationEmail(token, verifyEmailPayload);
   }
@@ -75,10 +115,15 @@ export class UserService implements IUserService {
     user: UserResponse,
     updateUserAvatar: UpdateUserAvatarDto,
   ): Promise<UserResponse> {
+    const { buffer, filename } = updateUserAvatar;
+    const cardBucket = `avatar/${filename}`;
+    await this._firebaseStorageService.upload(buffer, cardBucket);
+    const url = await this._firebaseStorageService.get(cardBucket);
+
     const token = await this._getToken();
 
     const _user = await this._updateUser(token, {
-      ...updateUserAvatar,
+      picture: url,
       userId: user.userId,
     });
 
@@ -89,10 +134,21 @@ export class UserService implements IUserService {
     user: UserResponse,
     updateUserStudentCard: UpdateUserStudentCardDto,
   ): Promise<UserResponse> {
-    const token = await this._getToken();
+    const { buffer, filename } = updateUserStudentCard;
+    const { name, ...payload } =
+      await this._azureOcrService.poll<AzureOcrStudentCardResponse>(buffer);
 
+    const cardBucket = `cards/${filename}`;
+    await this._firebaseStorageService.upload(buffer, cardBucket);
+    const url = await this._firebaseStorageService.get(cardBucket);
+
+    const token = await this._getToken();
     const _user = await this._updateUser(token, {
-      ...updateUserStudentCard,
+      name,
+      user_metadata: {
+        ...payload,
+        student_card_image_url: url,
+      },
       userId: user.userId,
     });
 
@@ -123,9 +179,10 @@ export class UserService implements IUserService {
     token: string,
     updateUser: T,
   ): Promise<UserResponse> {
-    const res = await this._auth0Client.post(
-      `/api/v2/users/${updateUser.userId}`,
-      createSnakeCaseFromObject(updateUser),
+    const { userId, ...payload } = updateUser;
+    const res = await this._auth0Client.patch(
+      `/api/v2/users/${userId}`,
+      createSnakeCaseFromObject(payload),
       {
         headers: {
           Authorization: `Bearer ${token}`,

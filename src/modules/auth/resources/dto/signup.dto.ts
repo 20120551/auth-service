@@ -9,10 +9,10 @@ export class SignupDto {
   connection: string;
 
   @IsString()
-  email: string;
+  name: string;
 
   @IsString()
-  username: string;
+  email: string;
 
   @IsString()
   @MinLength(0, {

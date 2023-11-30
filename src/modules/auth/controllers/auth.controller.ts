@@ -2,18 +2,19 @@ import {
   Body,
   Controller,
   Get,
+  HttpCode,
+  HttpStatus,
   Inject,
   Post,
   Query,
-  Req,
 } from '@nestjs/common';
-import { Request } from 'express';
 import { IAuthService } from '../services';
 import {
+  ChangePasswordDto,
+  RefreshTokenDto,
   ResourceOwnerLoginDto,
   SignupDto,
   SocialLoginDto,
-  SupportedSocialLogin,
 } from '../resources/dto';
 
 @Controller('/api/auth')
@@ -27,13 +28,27 @@ export class AuthController {
     return this._authService.createSocialLoginUrl(socialLoginDto);
   }
 
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Post('signup')
   signup(@Body() signupDto: SignupDto) {
     return this._authService.signup(signupDto);
   }
 
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   login(@Body() resourceOwnerLoginDto: ResourceOwnerLoginDto) {
     return this._authService.login(resourceOwnerLoginDto);
+  }
+
+  @HttpCode(HttpStatus.OK)
+  @Post('refresh-token')
+  refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this._authService.refreshToken(refreshTokenDto);
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('change-password')
+  changePassword(@Body() changePassword: ChangePasswordDto) {
+    return this._authService.changePassword(changePassword);
   }
 }

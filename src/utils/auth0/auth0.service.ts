@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { Auth0AccessToken, Auth0ModuleOptions, Auth0UserInfo } from '.';
 import axios, { AxiosInstance } from 'axios';
 
@@ -11,7 +11,10 @@ export interface IAuth0Service {
 @Injectable()
 export class Auth0Service implements IAuth0Service {
   private readonly _auth0Client: AxiosInstance;
-  constructor(private readonly _auth0Options: Auth0ModuleOptions) {
+  constructor(
+    @Inject(Auth0ModuleOptions)
+    private readonly _auth0Options: Auth0ModuleOptions,
+  ) {
     this._auth0Client = axios.create({
       baseURL: _auth0Options.api.baseUrl,
     });
