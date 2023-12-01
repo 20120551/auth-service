@@ -26,19 +26,3 @@ export class RefreshTokenDto {
   @IsOptional()
   refreshToken?: string;
 }
-
-export class SocialLoginRefreshTokenDto extends RefreshTokenDto {
-  @defaultValue('authorization_code')
-  grantType: string;
-
-  @IsString()
-  code: string;
-
-  @IsString()
-  redirectUri: string;
-}
-
-export class ResourceOwnerLoginRefreshTokenDto extends RefreshTokenDto {
-  @defaultValue('refresh_token')
-  grantType: string;
-}

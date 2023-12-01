@@ -1,0 +1,10 @@
+apiHandler:
+  handler: ./src/functions/server/handler.apiHandler
+  timeout: 900
+  events:
+    - http:
+        method: ANY
+        path: /
+    - http:
+        method: ANY
+        path: '{proxy+}'
