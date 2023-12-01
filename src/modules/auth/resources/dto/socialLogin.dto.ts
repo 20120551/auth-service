@@ -6,7 +6,7 @@ export class SocialLoginDto {
   @defaultValue('AUTH0_CLIENT_ID', { fromEnv: true })
   clientId: string;
 
-  @defaultValue('token')
+  @defaultValue('code')
   responseType: 'code' | 'token';
 
   @IsString()
@@ -15,6 +15,9 @@ export class SocialLoginDto {
   @IsString()
   redirectUri: string;
   state?: string;
+
+  @defaultValue('openid profile email offline_access')
+  scope?: string;
 
   @defaultValue('offline')
   accessType?: string;

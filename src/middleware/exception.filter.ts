@@ -18,7 +18,10 @@ export class HttpExceptionFilter implements ExceptionFilter {
       return response.status(status).json({
         statusCode: status,
         message: [
-          this._axiosError(exception.response.data, ['error', 'description']),
+          exception.response.data.error_description ||
+            exception.response.data.error ||
+            exception.response.data.description ||
+            'Internal server error',
         ],
         error:
           exception.response.data.error ||
@@ -38,25 +41,5 @@ export class HttpExceptionFilter implements ExceptionFilter {
         message: 'Internal server error',
       });
     }
-  }
-  private _axiosError(data: any, errors: string[]) {
-    let initValue = '';
-    for (const error of errors) {
-      if (data[initValue]) {
-        return data[initValue];
-      }
-
-      if (data[error]) {
-        return data[error];
-      }
-
-      if (!initValue) {
-        initValue = error;
-      }
-
-      initValue = initValue + `_${data[error]}`;
-    }
-
-    return 'Internal server error';
   }
 }
