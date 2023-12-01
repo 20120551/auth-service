@@ -3,7 +3,11 @@ import { ValidationArguments, registerDecorator } from 'class-validator';
 import { Request } from 'express';
 import { env } from 'process';
 
-type DefaultValueOptions = { fromEnv: boolean };
+type DefaultValueOptions = {
+  fromEnv?: boolean;
+  filter?: (obj: any) => boolean;
+};
+
 export function defaultValue<T>(value: T, options?: DefaultValueOptions) {
   return function (object: Object, propertyName: string) {
     registerDecorator({
@@ -14,6 +18,15 @@ export function defaultValue<T>(value: T, options?: DefaultValueOptions) {
         validate(_value: any, args: ValidationArguments) {
           if (_value) {
             return true;
+          }
+
+          if (options?.filter) {
+            const isValueAccepted = options.filter(args.object);
+            if (isValueAccepted) {
+              // pass
+            } else {
+              return true;
+            }
           }
 
           if (value === undefined) {

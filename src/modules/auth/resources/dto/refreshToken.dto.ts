@@ -1,4 +1,4 @@
-import { IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { defaultValue } from 'utils/decorator/parameters';
 
 export class RefreshTokenDto {
@@ -11,9 +11,34 @@ export class RefreshTokenDto {
   @defaultValue('openid profile email offline_access')
   scope?: string;
 
+  @defaultValue('authorization_code', {
+    filter: (o) => o.refreshToken === undefined,
+  })
   @defaultValue('refresh_token')
+  grantType?: string;
+
+  @IsOptional()
+  code?: string;
+
+  @IsOptional()
+  redirectUri?: string;
+
+  @IsOptional()
+  refreshToken?: string;
+}
+
+export class SocialLoginRefreshTokenDto extends RefreshTokenDto {
+  @defaultValue('authorization_code')
   grantType: string;
 
   @IsString()
-  refreshToken: string;
+  code: string;
+
+  @IsString()
+  redirectUri: string;
+}
+
+export class ResourceOwnerLoginRefreshTokenDto extends RefreshTokenDto {
+  @defaultValue('refresh_token')
+  grantType: string;
 }
