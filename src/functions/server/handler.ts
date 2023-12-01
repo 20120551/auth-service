@@ -1,6 +1,6 @@
 import { APIGatewayEvent, Callback, Context, Handler } from 'aws-lambda';
 import serverlessExpress from '@vendia/serverless-express';
-import { bootstrap } from '../../main';
+import { bootstrap } from '../../bootstrap';
 
 export const apiHandler: Handler = async (
   event: APIGatewayEvent,
