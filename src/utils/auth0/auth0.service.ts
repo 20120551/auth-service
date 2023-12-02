@@ -16,7 +16,7 @@ export class Auth0Service implements IAuth0Service {
     private readonly _auth0Options: Auth0ModuleOptions,
   ) {
     this._auth0Client = axios.create({
-      baseURL: _auth0Options.api.baseUrl,
+      baseURL: _auth0Options.baseUrl,
     });
   }
   async verifyToken(token: Auth0AccessToken): Promise<Auth0UserInfo> {
@@ -29,14 +29,13 @@ export class Auth0Service implements IAuth0Service {
   }
 
   async signToken(): Promise<Auth0AccessToken> {
-    const { clientId, clientSecret, grantType, audience } =
-      this._auth0Options.manager;
+    const { clientId, clientSecret, grantType, baseUrl } = this._auth0Options;
 
     const res = await this._auth0Client.post('/oauth/token', {
       client_id: clientId,
       client_secret: clientSecret,
       grant_type: grantType,
-      audience: audience,
+      audience: `${baseUrl}/api/v2/`,
     });
     return res.data as Auth0AccessToken;
   }

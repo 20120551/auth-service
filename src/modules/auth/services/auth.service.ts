@@ -36,7 +36,7 @@ export class AuthService implements IAuthService {
   ) {
     this._options = auth0Options;
     this._auth0Client = axios.create({
-      baseURL: auth0Options.api.baseUrl,
+      baseURL: auth0Options.baseUrl,
     });
   }
 
@@ -85,7 +85,7 @@ export class AuthService implements IAuthService {
 
   createSocialLoginUrl(socialLoginDto: SocialLoginDto): Promise<string> {
     const url = createQueryUrl(
-      `${this._options.api.baseUrl}/authorize`,
+      `${this._options.baseUrl}/authorize`,
       createSnakeCaseFromObject(socialLoginDto),
     );
 

@@ -52,10 +52,10 @@ export class UserService implements IUserService {
     @Inject(IFirebaseStorageService)
     private readonly _firebaseStorageService: IFirebaseStorageService,
     @Inject(Auth0ModuleOptions)
-    private readonly _auth0Options: Auth0ModuleOptions,
+    _auth0Options: Auth0ModuleOptions,
   ) {
     this._auth0Client = axios.create({
-      baseURL: _auth0Options.api.baseUrl,
+      baseURL: _auth0Options.baseUrl,
     });
   }
 
@@ -88,7 +88,6 @@ export class UserService implements IUserService {
     const [provider, userId] = user.userId.split('|');
     const verifyEmailPayload = {
       userId: user.userId,
-      clientId: this._auth0Options.manager.clientId,
       identity: {
         userId,
         provider,

@@ -3,17 +3,10 @@ import { ModuleMetadata, Provider, Type } from '@nestjs/common';
 // OPTION //
 export const Auth0ModuleOptions = 'Auth0ModuleOptions';
 export interface Auth0ModuleOptions {
-  api: {
-    clientId: string;
-    clientSecret: string;
-    baseUrl: string;
-  };
-  manager: {
-    grantType: string;
-    clientId: string;
-    clientSecret: string;
-    audience: string;
-  };
+  grantType: string;
+  clientId: string;
+  clientSecret: string;
+  baseUrl: string;
 }
 
 export interface Auth0OptionsFactory {
