@@ -40,6 +40,7 @@ module.exports = {
       middleware: path.resolve(__dirname, "src/middleware"),
       modules: path.resolve(__dirname, "src/modules"),
       utils: path.resolve(__dirname, "src/utils"),
+      interceptors: path.resolve(__dirname, "src/interceptors"),
     },
   },
 }
