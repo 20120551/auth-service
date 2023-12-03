@@ -19,11 +19,14 @@ import { UserResponse } from '../resources/response';
 import { AuthenticatedGuard } from 'guards';
 import {
   ChangePasswordDto,
+  LogoutDto,
   UpdateUserProfileDto,
   VerifyEmailDto,
 } from '../resources/dto';
+import { TokenRevalidatingInterceptor } from 'interceptors';
 
 @UseGuards(AuthenticatedGuard)
+@UseInterceptors(TokenRevalidatingInterceptor)
 @Controller('/api/user')
 export class UserController {
   constructor(
@@ -48,6 +51,12 @@ export class UserController {
       updateUserProfileDto,
     );
     return userResponse;
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('/logout')
+  async logout(@Body() logoutDto: LogoutDto, @User() user: UserResponse) {
+    return this._userService.logout(user, logoutDto);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

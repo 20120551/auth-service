@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import { Auth0ModuleOptions, Auth0PairToken, IAuth0Service } from 'utils/auth0';
+import { Auth0ModuleOptions, Auth0PairToken } from 'utils/auth0';
 import {
   createCamelCaseFromObject,
   createQueryUrl,

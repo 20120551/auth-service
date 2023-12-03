@@ -25,6 +25,8 @@
       "utils/*": ["./src/utils/*"],
       "middleware": ["./src/middleware"],
       "middleware/*": ["./src/middleware/*"],
+      "interceptors": ["./src/interceptors"],
+      "interceptors/*": ["./src/interceptors/*"],
     }
   }
 }

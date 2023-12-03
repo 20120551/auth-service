@@ -1,7 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { Auth0ModuleOptions, Auth0UserInfo, IAuth0Service } from 'utils/auth0';
 import {
+  LogoutDto,
   UpdateUserAvatarDto,
   UpdateUserProfileDto,
   UpdateUserStudentCardDto,
@@ -15,6 +16,8 @@ import { UserResponse } from '../resources/response';
 import { AzureOcrStudentCardResponse, IAzureOcrService } from 'utils/ocr/azure';
 import { IFirebaseStorageService } from 'utils/firebase';
 import { ChangePasswordDto } from '../resources/dto/changePassword.dto';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 export const IUserService = 'IUserService';
 export interface IUserService {
@@ -39,6 +42,7 @@ export interface IUserService {
     user: UserResponse,
     changePasswordDto: ChangePasswordDto,
   ): Promise<void>;
+  logout(user: UserResponse, logoutDto: LogoutDto): Promise<void>;
 }
 
 @Injectable()
@@ -53,10 +57,22 @@ export class UserService implements IUserService {
     private readonly _firebaseStorageService: IFirebaseStorageService,
     @Inject(Auth0ModuleOptions)
     _auth0Options: Auth0ModuleOptions,
+    @Inject(CACHE_MANAGER) private readonly _cacheManager: Cache,
   ) {
     this._auth0Client = axios.create({
       baseURL: _auth0Options.baseUrl,
     });
+  }
+
+  async logout(user: UserResponse, logoutDto: LogoutDto): Promise<void> {
+    const { idToken } = user.userMetadata;
+    await this._auth0Client.post('oidc/logout', {
+      ...createSnakeCaseFromObject({
+        ...logoutDto,
+        idTokenHint: idToken,
+      }),
+    });
+    await this._cacheManager.del(user.userId);
   }
 
   async changePassword(

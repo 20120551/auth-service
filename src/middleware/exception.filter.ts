@@ -17,12 +17,11 @@ export class HttpExceptionFilter implements ExceptionFilter {
       const status = exception.response.status;
       return response.status(status).json({
         statusCode: status,
-        message: [
+        message:
           exception.response.data.error_description ||
-            exception.response.data.error ||
-            exception.response.data.description ||
-            'Internal server error',
-        ],
+          exception.response.data.error ||
+          exception.response.data.description ||
+          'Internal server error',
         error:
           exception.response.data.error ||
           exception.response.data.code ||
@@ -30,8 +29,9 @@ export class HttpExceptionFilter implements ExceptionFilter {
       });
     } else if (exception instanceof HttpException) {
       const status = exception.getStatus();
+      const res = exception.getResponse();
       return response.status(status).json({
-        ...(exception.getResponse() as object),
+        message: typeof res === 'string' ? res : res['message'],
         error: exception.message,
       });
     } else {

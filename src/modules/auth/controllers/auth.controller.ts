@@ -7,6 +7,7 @@ import {
   Inject,
   Post,
   Query,
+  UseInterceptors,
 } from '@nestjs/common';
 import { IAuthService } from '../services';
 import {
@@ -16,6 +17,7 @@ import {
   SignupDto,
   SocialLoginDto,
 } from '../resources/dto';
+import { TokenCachingInterceptor } from 'interceptors';
 
 @Controller('/api/auth')
 export class AuthController {
@@ -34,12 +36,14 @@ export class AuthController {
     return this._authService.signup(signupDto);
   }
 
+  @UseInterceptors(TokenCachingInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('login')
   login(@Body() resourceOwnerLoginDto: ResourceOwnerLoginDto) {
     return this._authService.login(resourceOwnerLoginDto);
   }
 
+  @UseInterceptors(TokenCachingInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
   refreshToken(@Body() refreshTokenDto: RefreshTokenDto) {

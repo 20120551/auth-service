@@ -38,6 +38,7 @@ export class AuthenticatedGuard implements CanActivate {
     request.user = {
       ...camelCase,
       userId: camelCase['sub'],
+      userMetadata: camelCase.appMetadata || {},
     };
     return true;
   }
