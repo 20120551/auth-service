@@ -27,6 +27,8 @@
       "middleware/*": ["./src/middleware/*"],
       "interceptors": ["./src/interceptors"],
       "interceptors/*": ["./src/interceptors/*"],
+      "configurations": ["./src/configurations"],
+      "configurations/*": ["./src/configurations/*"],
     }
   }
 }

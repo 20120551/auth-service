@@ -3,17 +3,28 @@ import {
   CanActivate,
   ExecutionContext,
   Inject,
+  UseGuards,
 } from '@nestjs/common';
 import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
 import {
   ForbiddenException,
   UnauthorizedException,
 } from 'utils/errors/domain.error';
-import { ROLES_KEY } from 'utils/decorator/classes';
 import { Reflector } from '@nestjs/core';
 import { createCamelCaseFromObject } from 'utils/request';
 import { UserResponse } from 'modules/user/resources/response';
 import { Request } from 'express';
+
+import { SetMetadata } from '@nestjs/common';
+import {
+  POLICIES_KEY,
+  ROLES_KEY,
+  SupportedRole,
+} from 'configurations/role.config';
+
+export const Roles = (...roles: any[]) => SetMetadata(ROLES_KEY, roles);
+export const Policies = (...polices: any[]) =>
+  SetMetadata(POLICIES_KEY, polices);
 
 @Injectable()
 export class AuthorizedGuard implements CanActivate {
@@ -71,3 +82,19 @@ export class AuthorizedGuard implements CanActivate {
     return true;
   }
 }
+
+export interface UseAuthorizeOptions {
+  policies?: {
+    [index: string]: string;
+  };
+  roles?: SupportedRole[];
+}
+export const UseAuthorized = (
+  options: UseAuthorizeOptions,
+): ClassDecorator & MethodDecorator => {
+  return (target: Function, prop?: string, descriptor?: PropertyDescriptor) => {
+    Roles(options.roles)(target, prop, descriptor);
+    Policies(options.policies)(target, prop, descriptor);
+    UseGuards(AuthorizedGuard)(target, prop, descriptor);
+  };
+};
