@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { AdminController, UserController } from './controllers';
+import { UserController } from './controllers';
 import { UserService, IUserService } from './services';
 import { AzureModule, AzureModuleOptions } from 'utils/ocr/azure';
 import { ConfigService } from '@nestjs/config';
@@ -22,7 +22,7 @@ import { FirebaseModule, FirebaseModuleOptions } from 'utils/firebase';
       inject: [ConfigService],
     }),
   ],
-  controllers: [UserController, AdminController],
+  controllers: [UserController],
   providers: [
     {
       provide: IUserService,

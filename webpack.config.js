@@ -1,11 +1,24 @@
 const path = require("path");
 const slsw = require("serverless-webpack");
+const webpack = require("webpack");
+
+const lazyImports = [
+  '@nestjs/microservices',
+  '@nestjs/microservices/microservices-module',
+  '@nestjs/websockets',
+  '@nestjs/websockets/socket-module',
+];
 
 module.exports = {
   entry: slsw.lib.entries,
   target: "node",
   mode: slsw.lib.webpack.isLocal ? "development" : "production",
   devtool: "source-map",
+  externals: [
+    // nodeExternals({
+    //   allowlist: ['webpack/hot/poll?100'],
+    // }),
+  ],
   module: {
     rules: [
       {     
@@ -43,4 +56,18 @@ module.exports = {
       interceptors: path.resolve(__dirname, "src/interceptors"),
     },
   },
+  plugins: [
+    new webpack.IgnorePlugin({
+      checkResource(resource) {
+        if (lazyImports.includes(resource)) {
+          try {
+            require.resolve(resource);
+          } catch (err) {
+            return true;
+          }
+        }
+        return false;
+      },
+    }),
+  ]
 }

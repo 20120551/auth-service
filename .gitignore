@@ -1,6 +1,10 @@
 # compiled output
 /dist
 /node_modules
+.serverless
+.webpack
+.env
+.github
 
 # Logs
 logs
@@ -10,8 +14,6 @@ pnpm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
-.webpack
-.env
 # OS
 .DS_Store
 
