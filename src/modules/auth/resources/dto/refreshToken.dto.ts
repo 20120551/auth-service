@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional } from 'class-validator';
 import { defaultValue } from 'utils/decorator/parameters';
 
 export class RefreshTokenDto {

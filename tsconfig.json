@@ -10,7 +10,7 @@
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
-    "noUnusedLocals": true,
+    "noUnusedLocals": false,
     "noUnusedParameters": false,
     "esModuleInterop": true,
     "strictNullChecks": false,
