@@ -25,7 +25,11 @@ export class TokenCachingInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map(async ({ accessToken, refreshToken, idToken, expiresIn }) => {
         const { sub } = jwtDecode(idToken);
-        await this._cacheManager.set(sub, { idToken, accessToken }, expiresIn);
+        await this._cacheManager.set(
+          sub,
+          { idToken, accessToken },
+          expiresIn * 1000,
+        );
         return {
           accessToken,
           refreshToken,
