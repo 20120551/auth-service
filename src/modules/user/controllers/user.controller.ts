@@ -26,7 +26,7 @@ import {
 import { TokenRevalidatingInterceptor } from 'interceptors';
 
 @UseGuards(AuthenticatedGuard)
-@UseInterceptors(TokenRevalidatingInterceptor)
+// @UseInterceptors(TokenRevalidatingInterceptor)
 @Controller('/api/user')
 export class UserController {
   constructor(

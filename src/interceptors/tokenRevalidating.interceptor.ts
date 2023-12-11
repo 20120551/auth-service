@@ -29,7 +29,7 @@ export class TokenRevalidatingInterceptor implements NestInterceptor {
       await this._cacheManager.get<RevalidateTokenRespoonse>(user.userId);
 
     if (!revalidatedToken) {
-      throw new ForbiddenException('Invalid token');
+      throw new ForbiddenException('Not found token in cache');
     }
     const token = request.headers.authorization.split(' ')[1];
 
