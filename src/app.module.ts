@@ -4,8 +4,9 @@ import { AuthModule } from 'modules/auth/auth.module';
 import { auth0, azure, firebase, redis } from './configurations/env.config';
 import { Auth0Module, Auth0ModuleOptions } from 'utils/auth0';
 import { UserModule } from 'modules/user/user.module';
-import { CacheModule } from '@nestjs/cache-manager';
+import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
+import { redisStore } from 'cache-manager-redis-store';
 
 @Module({
   imports: [
@@ -25,10 +26,10 @@ import { RedisClientOptions } from 'redis';
     }),
     CacheModule.registerAsync({
       isGlobal: true,
-      useFactory: (configService: ConfigService) => {
+      useFactory: async (configService: ConfigService) => {
         const redisOptions = configService.get<RedisClientOptions>('redis');
-        console.log(redisOptions);
-        return redisOptions;
+        const store = await redisStore(redisOptions);
+        return { store: store as unknown as CacheStore };
       },
       inject: [ConfigService],
     }),

@@ -24,9 +24,23 @@ export class TokenCachingInterceptor implements NestInterceptor {
   ): Observable<Promise<PairTokenResponse>> {
     return next.handle().pipe(
       map(async ({ accessToken, refreshToken, idToken, expiresIn }) => {
-        const { sub } = jwtDecode(idToken);
-        console.log('cache token with key: ', sub);
-        await this._cacheManager.set(sub, { idToken, accessToken }, expiresIn);
+        const user = jwtDecode(idToken);
+        console.log(
+          'cache token with key: ',
+          { userId: user.sub, ...user },
+          expiresIn,
+        );
+        await this._cacheManager.set(
+          accessToken,
+          { userId: user.sub, ...user },
+          expiresIn,
+        );
+
+        await this._cacheManager.set(
+          user.sub,
+          { idToken, accessToken },
+          expiresIn,
+        );
         return {
           accessToken,
           refreshToken,
