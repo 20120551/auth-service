@@ -4,7 +4,7 @@
 .serverless
 .webpack
 .env
-.github
+# .github
 
 # Logs
 logs
