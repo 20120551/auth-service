@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Controller, Get, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from 'modules/auth/auth.module';
 import { auth0, azure, firebase, redis } from './configurations/env.config';
@@ -7,9 +7,11 @@ import { UserModule } from 'modules/user/user.module';
 import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-store';
+import { HealthCheckModule } from 'modules/healthCheck/health.check.module';
 
 @Module({
   imports: [
+    HealthCheckModule,
     AuthModule,
     UserModule,
     ConfigModule.forRoot({
