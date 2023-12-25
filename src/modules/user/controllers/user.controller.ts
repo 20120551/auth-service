@@ -5,8 +5,6 @@ import {
   HttpCode,
   HttpStatus,
   Inject,
-  MaxFileSizeValidator,
-  ParseFilePipe,
   Post,
   UploadedFile,
   UseGuards,
@@ -91,33 +89,6 @@ export class UserController {
     };
 
     const userResponse = await this._userService.updateUserAvatar(
-      user,
-      payload,
-    );
-
-    return userResponse;
-  }
-
-  @HttpCode(HttpStatus.OK)
-  @Post('/student-card')
-  @UseInterceptors(FileInterceptor('file'))
-  async uploadStudentCard(
-    @UploadedFile(
-      new ParseFilePipe({
-        // max 10mb
-        validators: [new MaxFileSizeValidator({ maxSize: 1000 * 1000 * 10 })],
-      }),
-    )
-    file: Express.Multer.File,
-    @User() user: UserResponse,
-  ) {
-    const payload = {
-      filename: file.originalname,
-      buffer: file.buffer,
-      mimeType: file.mimetype,
-    };
-
-    const userResponse = await this._userService.updateUserStudentCard(
       user,
       payload,
     );

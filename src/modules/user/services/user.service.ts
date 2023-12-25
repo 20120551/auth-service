@@ -1,11 +1,10 @@
-import { ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
 import { Auth0ModuleOptions, Auth0UserInfo, IAuth0Service } from 'utils/auth0';
 import {
   LogoutDto,
   UpdateUserAvatarDto,
   UpdateUserProfileDto,
-  UpdateUserStudentCardDto,
   VerifyEmailDto,
 } from '../resources/dto';
 import {
@@ -13,7 +12,6 @@ import {
   createSnakeCaseFromObject,
 } from 'utils/request';
 import { UserResponse } from '../resources/response';
-import { AzureOcrStudentCardResponse, IAzureOcrService } from 'utils/ocr/azure';
 import { IFirebaseStorageService } from 'utils/firebase';
 import { ChangePasswordDto } from '../resources/dto/changePassword.dto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -34,10 +32,6 @@ export interface IUserService {
     user: UserResponse,
     updateUserAvatar: UpdateUserAvatarDto,
   ): Promise<UserResponse>;
-  updateUserStudentCard(
-    user: UserResponse,
-    updateUserStudentCard: UpdateUserStudentCardDto,
-  ): Promise<UserResponse>;
   changePassword(
     user: UserResponse,
     changePasswordDto: ChangePasswordDto,
@@ -51,8 +45,6 @@ export class UserService implements IUserService {
   constructor(
     @Inject(IAuth0Service)
     private readonly _auth0Service: IAuth0Service,
-    @Inject(IAzureOcrService)
-    private readonly _azureOcrService: IAzureOcrService,
     @Inject(IFirebaseStorageService)
     private readonly _firebaseStorageService: IFirebaseStorageService,
     @Inject(Auth0ModuleOptions)
@@ -139,31 +131,6 @@ export class UserService implements IUserService {
 
     const _user = await this._updateUser(token, {
       picture: url,
-      userId: user.userId,
-    });
-
-    return _user;
-  }
-
-  async updateUserStudentCard(
-    user: UserResponse,
-    updateUserStudentCard: UpdateUserStudentCardDto,
-  ): Promise<UserResponse> {
-    const { buffer, filename } = updateUserStudentCard;
-    const { name, ...payload } =
-      await this._azureOcrService.poll<AzureOcrStudentCardResponse>(buffer);
-
-    const cardBucket = `cards/${filename}`;
-    await this._firebaseStorageService.upload(buffer, cardBucket);
-    const url = await this._firebaseStorageService.get(cardBucket);
-
-    const token = await this._getToken();
-    const _user = await this._updateUser(token, {
-      name,
-      user_metadata: {
-        ...payload,
-        student_card_image_url: url,
-      },
       userId: user.userId,
     });
 
