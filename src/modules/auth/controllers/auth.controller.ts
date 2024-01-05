@@ -17,7 +17,10 @@ import {
   SignupDto,
   SocialLoginDto,
 } from '../resources/dto';
-import { TokenCachingInterceptor } from 'interceptors';
+import {
+  TokenCachingInterceptor,
+  UpsertSnapshotUserInterceptor,
+} from 'interceptors';
 
 @Controller('/api/auth')
 export class AuthController {
@@ -36,6 +39,7 @@ export class AuthController {
     return this._authService.signup(signupDto);
   }
 
+  @UseInterceptors(UpsertSnapshotUserInterceptor)
   @UseInterceptors(TokenCachingInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('login')

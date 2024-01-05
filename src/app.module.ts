@@ -8,6 +8,7 @@ import { CacheModule, CacheStore } from '@nestjs/cache-manager';
 import { RedisClientOptions } from 'redis';
 import { redisStore } from 'cache-manager-redis-store';
 import { HealthCheckModule } from 'modules/healthCheck/health.check.module';
+import { PrismaModule } from 'utils/prisma';
 
 @Module({
   imports: [
@@ -35,6 +36,7 @@ import { HealthCheckModule } from 'modules/healthCheck/health.check.module';
       },
       inject: [ConfigService],
     }),
+    PrismaModule.forRoot({ isGlobal: true }),
   ],
 })
 export class AppModule {}

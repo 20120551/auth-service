@@ -21,7 +21,10 @@ import {
   UpdateUserProfileDto,
   VerifyEmailDto,
 } from '../resources/dto';
-import { TokenRevalidatingInterceptor } from 'interceptors';
+import {
+  TokenRevalidatingInterceptor,
+  UpsertSnapshotUserInterceptor,
+} from 'interceptors';
 
 @UseGuards(AuthenticatedGuard)
 @UseInterceptors(TokenRevalidatingInterceptor)
@@ -38,6 +41,7 @@ export class UserController {
     return userResponse;
   }
 
+  @UseInterceptors(UpsertSnapshotUserInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post()
   async updateProfile(
@@ -75,6 +79,7 @@ export class UserController {
     await this._userService.changePassword(user, changePasswordDto);
   }
 
+  @UseInterceptors(UpsertSnapshotUserInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('/avatar')
   @UseInterceptors(FileInterceptor('file'))

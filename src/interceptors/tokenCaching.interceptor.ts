@@ -10,6 +10,7 @@ import { Cache } from 'cache-manager';
 import { jwtDecode } from 'jwt-decode';
 import { PairTokenResponse } from 'modules/auth/resources/response';
 import { Observable, map } from 'rxjs';
+import util from 'util';
 
 @Injectable()
 export class TokenCachingInterceptor implements NestInterceptor {
@@ -23,7 +24,9 @@ export class TokenCachingInterceptor implements NestInterceptor {
     next: CallHandler,
   ): Observable<Promise<PairTokenResponse>> {
     return next.handle().pipe(
-      map(async ({ accessToken, refreshToken, idToken, expiresIn }) => {
+      map(async (resp) => {
+        const { accessToken, refreshToken, idToken, expiresIn } =
+          util.types.isPromise(resp) ? await resp : resp;
         const user = jwtDecode(idToken);
         console.log(
           'cache token with key: ',
