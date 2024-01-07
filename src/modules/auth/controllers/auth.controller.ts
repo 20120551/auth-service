@@ -47,6 +47,14 @@ export class AuthController {
     return this._authService.login(resourceOwnerLoginDto);
   }
 
+  @UseInterceptors(UpsertSnapshotUserInterceptor)
+  @UseInterceptors(TokenCachingInterceptor)
+  @HttpCode(HttpStatus.OK)
+  @Post('social')
+  createSocialLogin(@Body() refreshTokenDto: RefreshTokenDto) {
+    return this._authService.refreshToken(refreshTokenDto);
+  }
+
   @UseInterceptors(TokenCachingInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('refresh-token')
