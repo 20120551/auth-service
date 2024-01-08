@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import axios, { AxiosInstance } from 'axios';
-import { Auth0ModuleOptions, Auth0PairToken } from 'utils/auth0';
+import { Auth0ModuleOptions, Auth0PairToken, Auth0UserInfo } from 'utils/auth0';
 import {
   createCamelCaseFromObject,
   createQueryUrl,
@@ -14,10 +14,11 @@ import {
 } from '../resources/dto';
 import { PairTokenResponse } from '../resources/response';
 import { ChangePasswordDto } from '../resources/dto/changePassword.dto';
+import { UserResponse } from 'modules/user/resources/response';
 
 export const IAuthService = 'IAuthService';
 export interface IAuthService {
-  signup(signupDto: SignupDto): Promise<void>;
+  signup(signupDto: SignupDto): Promise<UserResponse>;
   login(
     resourceOwnerLoginDto: ResourceOwnerLoginDto,
   ): Promise<PairTokenResponse>;
@@ -60,11 +61,16 @@ export class AuthService implements IAuthService {
     );
   }
 
-  async signup(signupDto: SignupDto): Promise<void> {
-    await this._auth0Client.post(
+  async signup(signupDto: SignupDto): Promise<UserResponse> {
+    const res = await this._auth0Client.post(
       '/dbconnections/signup',
       createSnakeCaseFromObject(signupDto),
     );
+
+    return createCamelCaseFromObject<Auth0UserInfo, UserResponse>({
+      user_id: `auth0|${res.data._id}`,
+      ...res.data,
+    });
   }
 
   async login(

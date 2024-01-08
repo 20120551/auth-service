@@ -1,4 +1,5 @@
 import { IsString, MinLength } from 'class-validator';
+import { SupportedRole } from 'configurations/role.config';
 import { defaultValue } from 'utils/decorator/parameters';
 
 export class SignupDto {
@@ -13,6 +14,13 @@ export class SignupDto {
 
   @IsString()
   email: string;
+
+  @defaultValue({
+    role: SupportedRole.USER,
+  })
+  userMetadata: {
+    role: SupportedRole;
+  };
 
   @IsString()
   @MinLength(0, {

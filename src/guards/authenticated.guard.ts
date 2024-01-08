@@ -36,18 +36,7 @@ export class AuthenticatedGuard implements CanActivate {
       throw new UnauthorizedException('Invalid Token');
     }
 
-    // const userInfo = await this._auth0Service.verifyToken({
-    //   access_token: accessToken,
-    // });
-
-    // const camelCase = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
-    //   userInfo,
-    // );
-    request.user = {
-      ...userInfo,
-      userId: userInfo['sub'],
-      userMetadata: userInfo.appMetadata || {},
-    };
+    request.user = userInfo;
     return true;
   }
 }

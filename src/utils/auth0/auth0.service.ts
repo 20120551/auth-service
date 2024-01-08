@@ -5,6 +5,7 @@ import axios, { AxiosInstance } from 'axios';
 export const IAuth0Service = 'IAuth0Service';
 export interface IAuth0Service {
   signToken(): Promise<Auth0AccessToken>;
+  verifyToken(token: Auth0AccessToken, userId: string): Promise<Auth0UserInfo>;
   verifyToken(token: Auth0AccessToken): Promise<Auth0UserInfo>;
 }
 
@@ -19,7 +20,19 @@ export class Auth0Service implements IAuth0Service {
       baseURL: _auth0Options.baseUrl,
     });
   }
-  async verifyToken(token: Auth0AccessToken): Promise<Auth0UserInfo> {
+  async verifyToken(
+    token: Auth0AccessToken,
+    userId?: string,
+  ): Promise<Auth0UserInfo> {
+    if (userId) {
+      const accessToken = await this.signToken();
+      const res = await this._auth0Client.get(`/api/v2/users/${userId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken.access_token}`,
+        },
+      });
+      return res.data as Auth0UserInfo;
+    }
     const res = await this._auth0Client.get('/userinfo', {
       headers: {
         Authorization: `Bearer ${token.access_token}`,

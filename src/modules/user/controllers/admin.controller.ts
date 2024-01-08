@@ -8,15 +8,20 @@ import {
   Param,
   Post,
   Put,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { TokenRevalidatingInterceptor } from 'interceptors';
+import {
+  TokenRevalidatingInterceptor,
+  UpsertSnapshotUserInterceptor,
+} from 'interceptors';
 import { AdminUpdateUserProfileDto, CreateUserDto } from '../resources/dto';
-import { UseAuthorized } from 'guards';
+import { AuthenticatedGuard, UseAuthorized } from 'guards';
 import { SupportedRole } from 'configurations/role.config';
 import { IAdminService } from '../services';
 
 @UseAuthorized({ roles: [SupportedRole.ADMIN] })
+@UseGuards(AuthenticatedGuard)
 @UseInterceptors(TokenRevalidatingInterceptor)
 @Controller('/api/admin')
 export class AdminController {
@@ -25,21 +30,21 @@ export class AdminController {
   ) {}
 
   @HttpCode(HttpStatus.OK)
-  @Get('/users')
+  @Get('users')
   async getUsers() {
     const usersResponse = await this._AdminService.getUsers();
     return usersResponse;
   }
 
   @HttpCode(HttpStatus.OK)
-  @Get('/users/:id')
+  @Get('users/:id')
   async getUser(@Param('id') id: string) {
     const userResponse = await this._AdminService.getUser(id);
     return userResponse;
   }
 
   @HttpCode(HttpStatus.OK)
-  @Put('/user/:id')
+  @Put('user/:id')
   async updateUser(
     @Param('id') id: string,
     @Body() adminUpdateUserProfileDto: AdminUpdateUserProfileDto,
@@ -51,8 +56,9 @@ export class AdminController {
     return userResponse;
   }
 
+  @UseInterceptors(UpsertSnapshotUserInterceptor)
   @HttpCode(HttpStatus.OK)
-  @Post('/user')
+  @Post('user')
   async createUser(@Body() createUserDto: CreateUserDto) {
     const userResponse = await this._AdminService.createUser(createUserDto);
     return userResponse;

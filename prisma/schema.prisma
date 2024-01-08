@@ -11,7 +11,7 @@ datasource db {
 model User {
   id                 String              @id
   name               String
-  email              String              @unique
+  email              String
   picture            String
   userCourses        UserCourse[]
   gradeReviews       GradeReview[]
@@ -145,6 +145,13 @@ model GradeReview {
   gradeReviewResults GradeReviewResult[]
 
   @@map("grade_review")
+}
+
+enum UserRole {
+  USER
+  ADMIN
+
+  @@map("user_role")
 }
 
 enum InvitationState {

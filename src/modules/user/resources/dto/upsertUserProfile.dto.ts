@@ -1,4 +1,5 @@
 import { IsEmail, IsString, MinLength } from 'class-validator';
+import { SupportedRole } from 'configurations/role.config';
 import { defaultValue } from 'utils/decorator/parameters';
 
 class UpsertUserDto {
@@ -17,6 +18,13 @@ export class CreateUserDto extends UpsertUserDto {
     message: "password can't be empty",
   })
   password: string;
+
+  @defaultValue({
+    role: SupportedRole.USER,
+  })
+  userMetadata: {
+    role: SupportedRole;
+  };
 
   @defaultValue('AUTH0_DEFAULT_DB_CONNECTION', { fromEnv: true })
   connection: string;

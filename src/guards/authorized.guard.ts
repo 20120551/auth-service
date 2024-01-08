@@ -21,6 +21,9 @@ import {
   ROLES_KEY,
   SupportedRole,
 } from 'configurations/role.config';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
+import { PrismaService } from 'utils/prisma';
 
 export const Roles = (...roles: any[]) => SetMetadata(ROLES_KEY, roles);
 export const Policies = (...polices: any[]) =>
@@ -28,37 +31,10 @@ export const Policies = (...polices: any[]) =>
 
 @Injectable()
 export class AuthorizedGuard implements CanActivate {
-  constructor(
-    @Inject(IAuth0Service) private readonly _auth0Service: IAuth0Service,
-    private reflector: Reflector,
-  ) {}
+  constructor(private reflector: Reflector) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest() as Request;
-    if (!request.user) {
-      const token = request.headers.authorization;
-      if (!token) {
-        throw new UnauthorizedException('Token not appear in request header');
-      }
-
-      const accessToken = token.split(' ')[1];
-      if (!accessToken) {
-        throw new UnauthorizedException('Token style not supported');
-      }
-
-      const userInfo = await this._auth0Service.verifyToken({
-        access_token: accessToken,
-      });
-
-      const camelCase = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
-        userInfo,
-      );
-      request.user = {
-        ...camelCase,
-        userId: camelCase['sub'],
-      };
-    }
-
     const requiredRoles = this.reflector.getAllAndOverride<any[]>(ROLES_KEY, [
       context.getHandler(),
       context.getClass(),
@@ -69,9 +45,10 @@ export class AuthorizedGuard implements CanActivate {
     }
 
     const { user } = request;
-    const isAcceptedRole = requiredRoles.some(
-      (role) => user.appMetadata[role] !== undefined,
-    );
+
+    const isAcceptedRole = requiredRoles
+      .flat()
+      .some((_role) => user.userMetadata.role === _role);
 
     if (!isAcceptedRole) {
       throw new ForbiddenException(

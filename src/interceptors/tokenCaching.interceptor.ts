@@ -9,14 +9,19 @@ import {
 import { Cache } from 'cache-manager';
 import { jwtDecode } from 'jwt-decode';
 import { PairTokenResponse } from 'modules/auth/resources/response';
+import { UserResponse } from 'modules/user/resources/response';
 import { Observable, map } from 'rxjs';
 import util from 'util';
+import { Auth0UserInfo, IAuth0Service } from 'utils/auth0';
+import { createCamelCaseFromObject } from 'utils/request';
 
 @Injectable()
 export class TokenCachingInterceptor implements NestInterceptor {
   constructor(
     @Inject(CACHE_MANAGER)
     private readonly _cacheManager: Cache,
+    @Inject(IAuth0Service)
+    private readonly _auth0Service: IAuth0Service,
   ) {}
 
   intercept(
@@ -27,27 +32,24 @@ export class TokenCachingInterceptor implements NestInterceptor {
       map(async (resp) => {
         const { accessToken, refreshToken, idToken, expiresIn } =
           util.types.isPromise(resp) ? await resp : resp;
-        const user = jwtDecode(idToken);
-        console.log(
-          'cache token with key: ',
-          { userId: user.sub, ...user },
-          expiresIn,
-        );
-        await this._cacheManager.set(
+        const cacheUser = await this._auth0Service.verifyToken(
           accessToken,
-          { userId: user.sub, ...user },
-          expiresIn,
+          jwtDecode(idToken).sub,
         );
 
-        await this._cacheManager.set(
-          user.sub,
-          { idToken, accessToken },
-          expiresIn,
+        const user = createCamelCaseFromObject<Auth0UserInfo, UserResponse>(
+          cacheUser,
         );
+
+        console.log('cache token with key: ', user, expiresIn);
+        await this._cacheManager.set(accessToken, user, expiresIn);
+        await this._cacheManager.set(user.userId, { accessToken }, expiresIn);
+
         return {
           accessToken,
           refreshToken,
           expiresIn,
+          user,
         };
       }),
     );

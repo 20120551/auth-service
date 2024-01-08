@@ -37,8 +37,6 @@ export class TokenRevalidatingInterceptor implements NestInterceptor {
       throw new ForbiddenException('Invalid token');
     }
 
-    // attach id token in user request
-    request.user['userMetadata']['idToken'] = revalidatedToken.idToken;
     return next.handle();
   }
 }

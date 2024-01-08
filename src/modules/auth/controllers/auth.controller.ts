@@ -33,13 +33,13 @@ export class AuthController {
     return this._authService.createSocialLoginUrl(socialLoginDto);
   }
 
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @UseInterceptors(UpsertSnapshotUserInterceptor)
+  @HttpCode(HttpStatus.OK)
   @Post('signup')
   signup(@Body() signupDto: SignupDto) {
     return this._authService.signup(signupDto);
   }
 
-  @UseInterceptors(UpsertSnapshotUserInterceptor)
   @UseInterceptors(TokenCachingInterceptor)
   @HttpCode(HttpStatus.OK)
   @Post('login')
