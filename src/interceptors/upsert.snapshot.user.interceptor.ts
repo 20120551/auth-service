@@ -17,20 +17,19 @@ export class UpsertSnapshotUserInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map(async (resp) => {
         let user = null;
-        console.log(resp);
         if (resp?.idToken) {
           user = jwtDecode(resp.idToken) as any as UserResponse;
         } else {
           user = resp;
         }
 
-        if (!user?.userId) {
+        if (!user?.userId && !user?.sub) {
           return resp;
         }
 
         await this._prismaService.user.upsert({
           where: {
-            id: user.userId,
+            id: user.userId || user.sub,
           },
           create: {
             id: user.sub || user.userId,
