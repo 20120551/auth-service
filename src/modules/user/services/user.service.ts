@@ -56,14 +56,7 @@ export class UserService implements IUserService {
     });
   }
 
-  async logout(user: UserResponse, logoutDto: LogoutDto): Promise<void> {
-    const { idToken } = user.userMetadata;
-    await this._auth0Client.post('oidc/logout', {
-      ...createSnakeCaseFromObject({
-        ...logoutDto,
-        idTokenHint: idToken,
-      }),
-    });
+  async logout(user: UserResponse): Promise<void> {
     await this._cacheManager.del(user.userId);
   }
 
