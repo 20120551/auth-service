@@ -22,7 +22,7 @@ import { IAdminService } from '../services';
 
 @UseAuthorized({ roles: [SupportedRole.ADMIN] })
 @UseGuards(AuthenticatedGuard)
-@UseInterceptors(TokenRevalidatingInterceptor)
+// @UseInterceptors(TokenRevalidatingInterceptor)
 @Controller('/api/admin')
 export class AdminController {
   constructor(

@@ -26,7 +26,7 @@ import {
   UpsertSnapshotUserInterceptor,
 } from 'interceptors';
 
-@UseInterceptors(TokenRevalidatingInterceptor)
+// @UseInterceptors(TokenRevalidatingInterceptor)
 @UseGuards(AuthenticatedGuard)
 @Controller('/api/user')
 export class UserController {
